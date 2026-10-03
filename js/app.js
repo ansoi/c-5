@@ -28,12 +28,13 @@
     return { path, query: new URLSearchParams(qs || '') };
   }
 
-  // 내 수리 요청에 어제·오늘 소식이 있고 아직 알림을 안 봤으면 종에 점을 찍어요
+  // 안 읽은 알림이 있으면 종에 점을 찍어요 (기준은 알림 화면과 같아요)
   function updateBell() {
     const dot = document.querySelector('[data-bell-dot]');
-    if (!dot) return;
-    const fresh = MD.tickets.all().some((t) => t.mine && Object.keys(t.events).some((k) => t.events[k] <= 1));
-    dot.hidden = !(fresh && MD.store.get('alertsSeen', null) !== MD.util.todayKey());
+    if (!dot || !MD.alerts) return;
+    const unread = MD.alerts.unreadCount();
+    dot.hidden = !unread;
+    dot.parentElement.setAttribute('aria-label', unread ? `알림, 새 알림 ${unread}개` : '알림');
   }
 
   let current = null; // { name, view }

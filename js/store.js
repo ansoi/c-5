@@ -138,7 +138,7 @@
     },
     addEvent(e) {
       const list = get('events', []);
-      list.push(Object.assign({ id: `E${Date.now()}`, date: U.todayKey(), time: U.nowHM() }, e));
+      list.push(Object.assign({ id: `E${Date.now()}`, date: U.todayKey(), time: U.nowHM(), at: Date.now() }, e));
       set('events', list.slice(-50));
     },
 
