@@ -1,0 +1,41 @@
+/* 리뷰 남기기 */
+
+.write { display: grid; gap: 14px; }
+.write__top { margin-bottom: -6px; }
+
+.session { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 18px; background: var(--card); border: 1px solid var(--line); }
+.session__icon { display: grid; place-items: center; flex: none; width: 40px; height: 40px; border-radius: 50%; background: var(--ok-bg); color: var(--ok); }
+.session__icon--plain { background: var(--brand-tint); color: var(--brand-ink); }
+.session__icon .icon { width: 20px; height: 20px; }
+.session__title { font-size: 16px; font-weight: 800; }
+.session__sub { font-size: 13px; color: var(--text-sub); }
+
+.write__intro { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; padding: 6px 2px 0; }
+.write__progress {
+  flex: none; padding: 5px 10px; border-radius: var(--radius-pill);
+  background: var(--text); color: #fff; font-size: 12px; font-weight: 700; white-space: nowrap;
+}
+
+.write__card { display: grid; gap: 18px; }
+.question { display: grid; gap: 8px; }
+.question__label { display: flex; align-items: center; gap: 6px; font-size: 15px; font-weight: 700; }
+.question__label .icon { width: 18px; height: 18px; color: var(--text-sub); }
+.question__req { padding: 2px 7px; border-radius: 6px; background: var(--brand-tint); color: var(--brand-ink); font-size: 11px; font-style: normal; font-weight: 700; }
+.question__opt { font-size: 12px; font-weight: 500; color: var(--text-sub); }
+
+.stars-row { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; }
+.stars-row__text { font-size: 14px; font-weight: 700; color: var(--text-sub); }
+
+.textarea {
+  width: 100%; min-height: 64px; padding: 12px 14px; resize: vertical;
+  border: 1.5px solid var(--line-strong); border-radius: 14px; background: var(--card);
+  font: inherit; font-size: 15px; color: var(--text);
+}
+.textarea:focus { border-color: var(--brand); outline: none; box-shadow: 0 0 0 3px rgba(208, 74, 2, 0.15); }
+.textarea::placeholder { color: #9A9A9A; }
+.textarea__foot { display: flex; justify-content: space-between; gap: 12px; margin-top: -10px; font-size: 12px; color: var(--text-sub); }
+.textarea__foot span:last-child { flex: none; font-variant-numeric: tabular-nums; }
+
+.write__anon { display: flex; align-items: flex-start; justify-content: center; gap: 6px; font-size: 13px; color: var(--text-sub); text-align: center; }
+.write__anon .icon { width: 15px; height: 15px; margin-top: 2px; }
+.write__actions { display: grid; gap: 4px; }
