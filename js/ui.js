@@ -31,6 +31,15 @@
     logout: '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/>',
     external: '<path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>',
     reset: '<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>',
+    arrowLeft: '<path d="m12 19-7-7 7-7"/><path d="M19 12H5"/>',
+    chevronDown: '<path d="m6 9 6 6 6-6"/>',
+    printer: '<path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/>',
+    briefcase: '<rect width="20" height="14" x="2" y="7" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>',
+    headphones: '<path d="M3 14h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a9 9 0 0 1 18 0v7a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3"/>',
+    flag: '<path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><path d="M4 22v-7"/>',
+    info: '<circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>',
+    pencil: '<path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>',
+    calendar: '<rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/>',
   };
 
   function icon(name, cls) {
@@ -56,8 +65,76 @@
     el.textContent = message;
     el.classList.add('is-show');
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => el.classList.remove('is-show'), 2400);
+    toastTimer = setTimeout(() => el.classList.remove('is-show'), 2800);
   }
 
-  MD.ui = { icon, crown, esc, pill, toast };
+  // 단계 그림 — 온도·소음 등은 숫자 대신 단계 그림 + 라벨 (톤앤매너 2장)
+  function steps(total, active) {
+    let segs = '';
+    for (let i = 0; i < total; i++) segs += `<span class="steps__seg${i === active ? ' is-on' : ''}"></span>`;
+    return `<span class="steps" aria-hidden="true">${segs}</span>`;
+  }
+
+  // 뒤로 가기. 앱 안에서 왔으면 이전 화면으로, 바로 들어왔으면 fallback 주소로 가요 (app.js가 처리)
+  const back = (fallback, label) =>
+    `<a class="back" href="${fallback}" data-back>${icon('arrowLeft')}<span>${esc(label || '뒤로')}</span></a>`;
+
+  // 확인 창 → Promise<boolean>. 주요 버튼은 하나만 둬요.
+  function confirm(opts) {
+    return new Promise((resolve) => {
+      const prev = document.activeElement;
+      const wrap = document.createElement('div');
+      wrap.className = 'dialog-wrap';
+      const body = (opts.body || '').split('\n').filter(Boolean).map((p) => `<p>${esc(p)}</p>`).join('');
+      wrap.innerHTML = `
+        <div class="dialog" role="alertdialog" aria-modal="true" aria-labelledby="dialog-title" aria-describedby="dialog-body">
+          <h2 class="dialog__title" id="dialog-title">${esc(opts.title)}</h2>
+          <div class="dialog__body" id="dialog-body">${body}</div>
+          <div class="dialog__actions">
+            <button type="button" class="btn btn--secondary" data-answer="no">${esc(opts.cancel || '취소')}</button>
+            <button type="button" class="btn btn--primary" data-answer="yes">${esc(opts.confirm || '확인')}</button>
+          </div>
+        </div>`;
+      document.body.appendChild(wrap);
+      document.body.classList.add('is-dialog');
+      const buttons = Array.from(wrap.querySelectorAll('button'));
+
+      function close(answer) {
+        document.removeEventListener('keydown', onKey, true);
+        wrap.remove();
+        document.body.classList.remove('is-dialog');
+        if (prev && prev.isConnected && prev.focus) prev.focus();
+        resolve(answer);
+      }
+      function onKey(e) {
+        if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); close(false); }
+        if (e.key === 'Tab') { // 창 밖으로 초점이 나가지 않게
+          const i = buttons.indexOf(document.activeElement);
+          const next = e.shiftKey ? (i <= 0 ? buttons.length - 1 : i - 1) : (i + 1) % buttons.length;
+          e.preventDefault();
+          buttons[next].focus();
+        }
+      }
+      wrap.addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-answer]');
+        if (btn) close(btn.dataset.answer === 'yes');
+        else if (e.target === wrap) close(false);
+      });
+      document.addEventListener('keydown', onKey, true);
+      buttons[buttons.length - 1].focus();
+    });
+  }
+
+  // 화면 일부를 다시 그린 뒤에도 키보드 초점을 같은 버튼에 돌려놓아요
+  function keepFocus(container, redraw) {
+    const active = document.activeElement;
+    const key = active && container.contains(active) ? active.getAttribute('data-focus') : null;
+    redraw();
+    if (key) {
+      const el = container.querySelector(`[data-focus="${key}"]`);
+      if (el) el.focus();
+    }
+  }
+
+  MD.ui = { icon, crown, esc, pill, toast, steps, back, confirm, keepFocus };
 })();

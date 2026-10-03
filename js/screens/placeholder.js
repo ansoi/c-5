@@ -16,6 +16,7 @@
     alerts: { title: '알림', desc: '수리 요청 진행 상황과 알림을 보는 화면이에요.' },
     prefs: { title: '내 조건', desc: '업무 모드와 우선순위 1~3위를 정하는 화면이에요.' },
     my: { title: '마이', desc: '내 정보와 설정을 보는 화면이에요.' },
+    admin: { title: '시설 담당자', desc: '불편·고장 신고를 우선순위대로 보고 처리 상태를 바꾸는 화면이에요. (톤앤매너 5장)' },
   };
 
   Object.keys(SOON).forEach((key) => {

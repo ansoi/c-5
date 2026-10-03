@@ -69,5 +69,17 @@
     return base.concat(deriveFromReviews(reviews || D.reviews(), base));
   }
 
-  MD.tickets = { all, status, STATUS_LABEL, AUTO_COUNT, AUTO_DAYS };
+  // 리뷰 남기기 화면 안내용: 이 자리·설비에 지금 몇 건이 쌓였는지, 이미 접수됐는지
+  function complaintStatus(seatId, item) {
+    const reviews = D.reviews();
+    const related = all(reviews).filter((t) => t.seatId === seatId && t.item === item);
+    const open = related.find((t) => status(t) !== 'done') || null;
+    const after = lastDone(related);
+    const count = reviews.filter((r) =>
+      r.seatId === seatId && r[item] != null && r[item] >= 1 &&
+      r.daysAgo < AUTO_DAYS && (after == null || r.daysAgo < after)).length;
+    return { open, count };
+  }
+
+  MD.tickets = { all, status, complaintStatus, STATUS_LABEL, AUTO_COUNT, AUTO_DAYS };
 })();

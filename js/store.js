@@ -115,6 +115,43 @@
       set('myTickets', list);
     },
 
+    // 마지막으로 이용을 마친 자리 — 리뷰 남기기 화면 머리말에 써요
+    lastSession() {
+      const s = get('lastSession', null);
+      return s && s.date === U.todayKey() ? s : null;
+    },
+    setLastSession(v) {
+      set('lastSession', Object.assign({}, v, { date: U.todayKey() }));
+    },
+
+    // 설정 — hideDept: 리뷰에 본부 이름 숨기기 (톤앤매너 6장)
+    settings() {
+      return Object.assign({ hideDept: false }, get('settings', {}));
+    },
+    setSettings(patch) {
+      set('settings', Object.assign(MD.state.settings(), patch));
+    },
+
+    // 알림에 보여 줄 내 활동 (예약 등)
+    events() {
+      return get('events', []);
+    },
+    addEvent(e) {
+      const list = get('events', []);
+      list.push(Object.assign({ id: `E${Date.now()}`, date: U.todayKey(), time: U.nowHM() }, e));
+      set('events', list.slice(-50));
+    },
+
+    // 신고해서 가린 리뷰
+    reported() {
+      return get('reported', []);
+    },
+    report(id) {
+      const list = get('reported', []);
+      if (!list.includes(id)) list.push(id);
+      set('reported', list);
+    },
+
     // 시연을 처음 상태로 되돌려요
     reset() {
       clearAll();

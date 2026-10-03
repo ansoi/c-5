@@ -16,6 +16,16 @@
   --brand-tint-strong: #FBE2D2;
   --surface-soft: #FFF8F3;
 
+  /* 편의시설 표시 — 창가 */
+  --window-bg: #DCEFFA;
+  --window-ink: #1D5C85;
+
+  /* 취향 히트맵 (취향 일치도 단계, 진할수록 잘 맞아요) */
+  --heat-4: #D04A02;
+  --heat-3: #F6A06B;
+  --heat-2: #FBD3B7;
+  --heat-1: #FDF0E8;
+
   /* 왕관 */
   --crown: #FFB600;
   --crown-line: #A86A00;
@@ -29,6 +39,7 @@
   --text: #2D2D2D;
   --text-sub: #6B6B6B;
   --line: #F0E2D8;
+  --line-strong: #E3D4C9;   /* 누를 수 있는 칩·좌석 테두리 */
   --seat-used: #DEDEDE;
   --card: #FFFFFF;
   --neutral-bg: #F3EEEA;

@@ -131,6 +131,20 @@
       </section>`;
   }
 
+  // 처음 쓰는 사람에게 업무 모드부터 고르게 안내해요 (기획서 5장: 우선순위는 첫 사용 때 한 번 정해요)
+  function onboardingHTML(snap) {
+    if (!snap.prefs.isDefault) return '';
+    return `
+      <a class="banner" href="#/prefs">
+        <span class="banner__icon">${UI.icon('sliders')}</span>
+        <span class="banner__body">
+          <strong>오늘 업무를 알려 주세요</strong>
+          <span>집중·통화·협업 중에 고르면 더 잘 맞는 자리를 찾아 드려요</span>
+        </span>
+        ${UI.icon('chevronRight')}
+      </a>`;
+  }
+
   function render(view) {
     const snap = MD.score.snapshot();
     const now = new Date();
@@ -141,6 +155,7 @@
           <p class="home__date">${U.fmtMonthDay(now)} ${U.weekday(now, true)}</p>
           <h1 class="home__greeting">${esc(D.ME.name)} 님, ${greeting(now.getHours())}</h1>
         </div>
+        ${onboardingHTML(snap)}
         <div class="home__grid">
           <div class="home__col">
             ${myseatHTML(snap)}
@@ -156,15 +171,11 @@
     view.addEventListener('click', (e) => {
       const btn = e.target.closest('[data-action]');
       if (!btn) return;
-      const my = MD.state.mySeat();
       if (btn.dataset.action === 'checkin') {
-        MD.state.setMySeat(Object.assign({}, my, { status: 'checkedIn', checkInAt: U.nowHM() }));
-        UI.toast(`${D.seatLabel(my.seatId)}에 체크인했어요`);
+        MD.actions.checkIn();
         MD.app.refresh({ keepScroll: true });
       } else if (btn.dataset.action === 'checkout') {
-        // 퇴근할 때 바로 평가 창으로 (기획서 4장 "사용 후 평가 창: 퇴근 시 팝업")
-        MD.state.setMySeat(Object.assign({}, my, { status: 'done', checkOutAt: U.nowHM() }));
-        location.hash = `#/review/${my.seatId}`;
+        MD.actions.checkOut();
       }
     });
   }
