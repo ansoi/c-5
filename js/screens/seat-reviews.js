@@ -37,18 +37,20 @@
     return `<span class="review__dept">${esc(r.dept || '본부 비공개')}</span><span>· ${r.year}년차</span>`;
   }
 
+  // 설비 문제 → 카테고리 → 소음·햇빛 → 온도 순서로, 최대 5개
   function reviewTags(r) {
-    const tags = (r.tags || []).map((id) => ({ text: D.CATEGORY_BY_ID[id] ? D.CATEGORY_BY_ID[id].label : id, tone: 'brand' }));
-    if (r.temp != null) tags.push({ text: D.LEVELS.temp.answers[r.temp], tone: '' });
-    if (r.noise === 0) tags.push({ text: '조용해요', tone: 'ok' });
-    if (r.noise === 2) tags.push({ text: '시끄러워요', tone: 'mid' });
-    if (r.light === 0) tags.push({ text: '어두워요', tone: '' });
-    if (r.light === 2) tags.push({ text: '눈부셔요', tone: 'mid' });
+    const tags = [];
     if (r.chair === 1) tags.push({ text: '의자 불편', tone: 'mid' });
     if (r.chair === 2) tags.push({ text: '의자 고장', tone: 'bad' });
     if (r.monitor === 1) tags.push({ text: '모니터 불량', tone: 'mid' });
     if (r.monitor === 2) tags.push({ text: '모니터 고장', tone: 'bad' });
-    return tags.slice(0, 4).map((t) => `<span class="tag${t.tone ? ` tag--${t.tone}` : ''}">${esc(t.text)}</span>`).join('');
+    (r.tags || []).forEach((id) => tags.push({ text: D.CATEGORY_BY_ID[id] ? D.CATEGORY_BY_ID[id].label : id, tone: 'brand' }));
+    if (r.noise === 0) tags.push({ text: '조용해요', tone: 'ok' });
+    if (r.noise === 2) tags.push({ text: '시끄러워요', tone: 'mid' });
+    if (r.light === 0) tags.push({ text: '어두워요', tone: '' });
+    if (r.light === 2) tags.push({ text: '눈부셔요', tone: 'mid' });
+    if (r.temp != null) tags.push({ text: D.LEVELS.temp.answers[r.temp], tone: '' });
+    return tags.slice(0, 5).map((t) => `<span class="tag${t.tone ? ` tag--${t.tone}` : ''}">${esc(t.text)}</span>`).join('');
   }
 
   function reviewCard(r, opts) {
@@ -57,7 +59,7 @@
       <li class="review">
         <div class="review__meta">
           ${author(r)}${when ? `<span>· ${esc(when)}</span>` : ''}${r.mine ? UI.pill('내 리뷰', 'brand') : ''}
-          <button type="button" class="review__report" data-report="${esc(r.id)}">${UI.icon('flag')}신고</button>
+          ${r.mine ? '' : `<button type="button" class="review__report" data-report="${esc(r.id)}">${UI.icon('flag')}신고</button>`}
         </div>
         <div class="tags">${reviewTags(r)}</div>
         ${r.text ? `<p class="review__text">${esc(r.text)}</p>` : ''}

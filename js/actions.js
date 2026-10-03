@@ -78,7 +78,7 @@
       monitor: answers.monitor,
       tags: answers.tags,
       text: answers.text,
-      dept: MD.state.settings().hideDept ? null : D.ME.dept,
+      dept: D.ME.dept, // 보여 줄 때 '본부 숨기기' 설정을 따라요 (data.js reviews)
       year: D.ME.year,
       checkIn: fromSession ? fromSession.checkInAt : null,
       checkOut: fromSession ? fromSession.checkOutAt : null,

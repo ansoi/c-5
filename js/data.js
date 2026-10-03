@@ -277,9 +277,11 @@
     return occupancyCache.set;
   }
 
-  // 샘플 리뷰 + 내가 남긴 리뷰
+  // 샘플 리뷰 + 내가 남긴 리뷰. '본부 숨기기'를 켜면 내 리뷰는 연차만 보여요 (톤앤매너 6장)
   function reviews() {
-    const mine = (MD.state ? MD.state.myReviews() : []).map((r) => Object.assign({}, r, { daysAgo: U.daysSince(r.date), mine: true }));
+    const hideDept = MD.state ? MD.state.settings().hideDept : false;
+    const mine = (MD.state ? MD.state.myReviews() : []).map((r) =>
+      Object.assign({}, r, { daysAgo: U.daysSince(r.date), mine: true, dept: hideDept ? null : r.dept }));
     return SEED_REVIEWS.concat(mine);
   }
 
