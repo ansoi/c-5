@@ -166,6 +166,15 @@ body.is-dialog, body.is-locked { overflow: hidden; }
 .review__text { margin-top: 8px; font-size: 15px; }
 .review-list { display: grid; gap: 10px; }
 
+/* ---------- 자리 정보 칩 ---------- */
+.facts { display: flex; flex-wrap: wrap; gap: 6px; }
+.fact {
+  display: inline-flex; align-items: center; gap: 5px; height: 32px; padding: 0 11px;
+  border-radius: 10px; background: var(--neutral-bg); font-size: 13px; font-weight: 600;
+}
+.fact .icon { width: 15px; height: 15px; color: var(--text-sub); }
+.fact__wc { font-size: 10px; font-weight: 800; color: var(--text-sub); }
+
 /* ---------- 순위 동그라미 ---------- */
 .rank {
   display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%;

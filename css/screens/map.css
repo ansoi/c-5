@@ -169,13 +169,6 @@
 .score-box--mine .score-box__value { color: var(--brand); }
 .score-box__meta { font-size: 12px; color: var(--text-sub); }
 
-.facts { display: flex; flex-wrap: wrap; gap: 6px; }
-.fact {
-  display: inline-flex; align-items: center; gap: 5px; height: 32px; padding: 0 11px;
-  border-radius: 10px; background: var(--neutral-bg); font-size: 13px; font-weight: 600;
-}
-.fact .icon { width: 15px; height: 15px; color: var(--text-sub); }
-.fact__wc { font-size: 10px; font-weight: 800; color: var(--text-sub); }
 
 .conds { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
 .cond { display: grid; gap: 6px; padding: 12px; border-radius: 14px; border: 1px solid var(--line); }

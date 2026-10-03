@@ -93,6 +93,9 @@ main {
 }
 
 .screen { animation: screen-in 0.22s ease-out; }
+/* 한 줄짜리 그리드는 칸이 내용(가로 스크롤 줄 등) 때문에 화면보다 넓어지지 않게 해요 */
+.home__grid, .home__col, .mapview, .mapview__main, .prefs__grid, .prefs__main, .prefs__side,
+.sr, .write, .write__card, .sr-card, .prefs__card, .seatinfo { grid-template-columns: minmax(0, 1fr); }
 @keyframes screen-in { from { opacity: 0; transform: translateY(6px); } }
 @media (prefers-reduced-motion: reduce) {
   .screen { animation: none; }
