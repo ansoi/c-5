@@ -118,11 +118,6 @@
 .pick__code .crown { width: 18px; height: 18px; }
 .pick__why { font-size: 12px; color: var(--text-sub); }
 .pick__score { font-size: 17px; font-weight: 800; color: var(--brand); font-variant-numeric: tabular-nums; }
-.rank {
-  display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%;
-  background: var(--brand-tint); color: var(--brand-ink); font-size: 13px; font-weight: 800;
-}
-.rank--first { background: var(--brand); color: #fff; }
 @media (min-width: 900px) { .picks-strip { display: none; } }
 
 /* ---------- 상세 시트 (모바일: 아래에서 올라와요 / PC: 오른쪽 패널) ---------- */
