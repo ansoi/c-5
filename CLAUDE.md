@@ -23,28 +23,44 @@
 
 ## 파일 구조
 ```
-index.html            첫 화면. CSS·JS를 여기서 순서대로 불러요
-css/tokens.css        색·모서리·글꼴 (색은 여기서만 정해요)
-css/base.css          공통: 상단바, 하단 탭, 카드, 버튼, 알약, 칩
-css/screens/*.css     화면별 스타일
-js/util.js            날짜, 고정 난수
-js/data.js            17F 가상 도면, 좌석, 샘플 리뷰·수리 요청
-js/store.js           브라우저 저장소(MD.store)와 내 상태(MD.state)
-js/tickets.js         수리 요청 (고장 즉시 접수, 불만 7일 3건 자동 접수)
-js/score.js           추천 로직 (MD.score.snapshot)
-js/ui.js              아이콘, 왕관, 알약, 안내 메시지, 글자 이스케이프
-js/screens/*.js       화면 하나 = 파일 하나
-js/app.js             주소(#/...)에 맞는 화면 그리기
-docs/                 기획서, 톤앤매너, 레퍼런스, 시안, 개발 명세·기록
+index.html                 첫 화면. CSS·JS를 여기서 순서대로 불러요
+css/tokens.css             색·모서리·글꼴 (색은 여기서만 정해요)
+css/base.css               뼈대: 상단바, 하단 탭, 카드, 버튼, 알약, 칩
+css/components.css         공통 부품: 페이지 머리말, 뒤로 가기, 세그먼트, 확인 창, 단계 그림, 스위치, 선택 칩, 별점, 안내 상자, 리뷰 카드
+css/screens/*.css          화면별 스타일
+js/util.js                 날짜, 고정 난수
+js/data.js                 17F 가상 도면, 좌석, 샘플 리뷰·수리 요청
+js/store.js                브라우저 저장소(MD.store)와 내 상태(MD.state)
+js/tickets.js              수리 요청 (고장 즉시 접수, 불만 7일 3건 자동 접수)
+js/score.js                추천 로직 (MD.score.snapshot)
+js/ui.js                   아이콘, 왕관, 알약, 단계 그림, 뒤로 가기, 확인 창(MD.ui.confirm), 안내 메시지, 글자 이스케이프
+js/actions.js              여러 화면이 같이 쓰는 동작: 예약(시연), 체크인, 이용 종료, 리뷰 등록
+js/screens/home.js         홈                       #/
+js/screens/map.js          자리 확인 (배치도·히트맵)   #/map, #/map?seat=A03
+js/screens/seat-sheet.js   좌석 상세 시트 내용 (map.js에서 열어요)
+js/screens/seat-reviews.js 좌석 리뷰                  #/seat/A03/reviews
+js/screens/review-write.js 리뷰 남기기                #/review/A03
+js/screens/prefs.js        내 조건                    #/prefs
+js/screens/alerts.js       알림 (+ MD.alerts)          #/alerts
+js/screens/reviews.js      리뷰 탭                    #/reviews
+js/screens/my.js           마이                       #/my
+js/screens/placeholder.js  아직 없는 화면 자리 (시설 담당자 #/admin)
+js/app.js                  주소(#/...)에 맞는 화면 그리기, 뒤로 가기, 알림 종
+docs/                      기획서, 톤앤매너, 레퍼런스, 시안, 개발 명세·기록
 ```
 
 ## 화면 추가하는 법
 1. `js/screens/이름.js`에 `MD.screens.이름 = { title, render(view, ctx) }`를 만들어요. `ctx.params`, `ctx.query`로 주소 값을 받아요.
+   - 같은 화면 안에서 주소의 `?` 뒤만 바뀔 때 다시 그리지 않으려면 `update(view, ctx)`도 만들어요 (예: map.js).
 2. `css/screens/이름.css`를 만들어요.
 3. `index.html`에 `<link>`와 `<script>`를 추가해요. 스크립트는 `placeholder.js` 뒤, `app.js` 앞에 둬요.
 4. 주소가 `js/app.js`의 `ROUTES`에 없으면 추가해요.
 - 자리 상태·점수·추천은 직접 계산하지 말고 `MD.score.snapshot()` 결과를 써요.
+- 예약·체크인·이용 종료·리뷰 등록은 `MD.actions`를 불러요. 같은 동작을 화면마다 따로 만들지 않아요.
+- 확인이 필요한 동작은 `await MD.ui.confirm({ title, body, confirm, cancel })`을 써요. 브라우저 기본 `confirm()`은 쓰지 않아요.
+- 뒤로 가기 링크는 `MD.ui.back('#/대신-갈-주소')`를 써요.
 - 사용자가 쓴 글은 화면에 넣기 전에 `MD.ui.esc()`로 감싸요.
+- 좌석 번호 바로 뒤에는 조사를 붙이지 않아요. "A08을/를" 대신 "A08 자리를"처럼 써요.
 
 ## 디자인 규칙 (톤앤매너 요약)
 - 색은 `css/tokens.css`의 변수만 써요. 주황(`--brand`)이 주색이고, 크림 바탕에 흰 카드를 써요. 다른 색은 상태 표시에만 써요.

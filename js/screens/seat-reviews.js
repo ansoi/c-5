@@ -78,9 +78,11 @@
         : '<span class="seg seg--none" style="flex:1"></span>';
       const legend = answers.map((a, i) => `<li><span class="dot seg--${it.tones[i]}"></span>${esc(a)} ${st.counts[i]}</li>`).join('');
       let extra = '';
+      let verdict = total ? it.verdict[idx] : '아직 평가가 없어요';
       if (it.key === 'chair' || it.key === 'monitor') {
         const list = seatTickets.filter((t) => t.item === it.key);
         const open = list.find((t) => MD.tickets.status(t) !== 'done');
+        if (open) verdict = open.kind === 'broken' ? '고장 신고가 접수됐어요' : '불만이 모여 접수됐어요';
         const done = list.filter((t) => MD.tickets.status(t) === 'done').sort((a, b) => a.events.done - b.events.done)[0];
         if (open) extra = `<p class="item__ticket item__ticket--open">${UI.icon('wrench')}${esc(open.summary)} · ${MD.tickets.STATUS_LABEL[MD.tickets.status(open)]}</p>`;
         else if (done && done.events.done < MD.score.WINDOW_DAYS) extra = `<p class="item__ticket">${UI.icon('check')}${esc(done.summary)} → ${dateText(done.events.done)} 수리 완료 · 수리 후 평가만 집계해요</p>`;
@@ -89,7 +91,7 @@
         <li class="item">
           <div class="item__head">
             <span class="item__title">${UI.icon(it.icon)}${it.title}</span>
-            <strong class="item__verdict">${total ? esc(it.verdict[idx]) : '아직 평가가 없어요'}</strong>
+            <strong class="item__verdict">${esc(verdict)}</strong>
           </div>
           <div class="bar" aria-hidden="true">${bar}</div>
           <ul class="bar-legend">${legend}</ul>

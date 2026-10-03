@@ -29,7 +29,10 @@
     return mean < 0.35 ? 0 : mean < 1.2 ? 1 : 2; // 의자·모니터
   }
 
-  function equipCell(st) {
+  // 열린 수리 요청이 있으면 평균보다 그 상태를 먼저 보여 줘요
+  function equipCell(st, openTickets) {
+    const open = (openTickets || []).find((t) => t.item === 'chair' || t.item === 'monitor');
+    if (open) return { idx: open.kind === 'broken' ? 2 : 1, total: 3, label: `${D.ITEMS[open.item]} ${open.kind === 'broken' ? '고장' : '불만'} 접수` };
     const c = levelIndex('chair', st.chair.mean) || 0;
     const m = levelIndex('monitor', st.monitor.mean) || 0;
     const worst = Math.max(c, m);
@@ -49,7 +52,7 @@
       const idx = levelIndex(c.key, st[c.key].mean);
       return Object.assign(c, { idx, label: idx == null ? '정보 부족' : D.LEVELS[c.key].short[idx] });
     });
-    cells.push(Object.assign({ key: 'equip', icon: 'monitor', title: '의자·모니터' }, equipCell(st)));
+    cells.push(Object.assign({ key: 'equip', icon: 'monitor', title: '의자·모니터' }, equipCell(st, entry.openTickets)));
     return cells.map((c) => `
       <li class="cond">
         <span class="cond__title">${UI.icon(c.icon)}${c.title}</span>

@@ -199,7 +199,6 @@
     });
     paint();
     markSeen();
-    MD.store.set('alertsSeen', U.todayKey());
   }
 
   MD.screens.alerts = { title: '알림', render };
