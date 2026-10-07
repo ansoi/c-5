@@ -1,0 +1,91 @@
+/* 홈 */
+
+.home__intro { padding: 10px 2px 16px; }
+.home__date { font-size: 14px; font-weight: 500; color: var(--text-sub); }
+.home__greeting { margin-top: 2px; font-size: 23px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.35; }
+.home__grid { display: grid; gap: 14px; }
+.home__col { display: grid; gap: 14px; align-content: start; }
+
+@media (min-width: 900px) {
+  .home__intro { padding: 16px 0 24px; }
+  .home__greeting { font-size: 30px; }
+  .home__grid { grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 24px; }
+  .home__col { gap: 20px; }
+}
+
+/* ---------- 첫 사용 안내 ---------- */
+.banner {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 14px; padding: 14px 16px; border-radius: 18px;
+  background: var(--card); box-shadow: inset 0 0 0 1.5px var(--brand);
+}
+.banner__icon {
+  display: grid; place-items: center; flex: none;
+  width: 40px; height: 40px; border-radius: 12px;
+  background: var(--brand-tint); color: var(--brand-ink);
+}
+.banner__body { display: grid; gap: 1px; flex: 1; min-width: 0; font-size: 13px; color: var(--text-sub); }
+.banner__body strong { font-size: 15px; color: var(--text); }
+.banner > .icon { color: var(--text-sub); }
+@media (min-width: 900px) { .banner { margin-bottom: 20px; } }
+
+/* ---------- 오늘 내 자리 ---------- */
+.myseat {
+  position: relative; overflow: hidden; isolation: isolate;
+  padding: 20px; border-radius: 24px;
+  color: #fff;
+  background: linear-gradient(140deg, var(--brand) 0%, var(--brand-dark) 100%);
+  box-shadow: 0 12px 28px rgba(176, 60, 2, 0.24);
+}
+.myseat::before, .myseat::after {
+  content: ""; position: absolute; z-index: -1; border-radius: 50%;
+  background: rgba(255, 255, 255, 0.07);
+}
+.myseat::before { width: 180px; height: 180px; right: -50px; top: -70px; }
+.myseat::after { width: 110px; height: 110px; right: 40px; top: 60px; }
+.myseat__head { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 14px; font-weight: 600; }
+.myseat__state { padding: 4px 10px; border-radius: var(--radius-pill); background: rgba(0, 0, 0, 0.2); font-size: 12px; font-weight: 700; }
+.myseat__code { margin-top: 6px; font-size: 32px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.2; font-variant-numeric: tabular-nums; }
+.myseat__meta { margin-top: 4px; font-size: 14px; }
+.myseat__note { margin-top: 2px; font-size: 14px; font-weight: 700; }
+.myseat__actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 16px; }
+.myseat__actions--single { grid-template-columns: 1fr; }
+.myseat__actions .btn { min-height: 46px; padding: 0 12px; font-size: 15px; }
+.myseat__using {
+  display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 46px; padding: 0 10px;
+  border-radius: var(--radius-btn); background: rgba(0, 0, 0, 0.18); font-size: 14px; font-weight: 700; white-space: nowrap;
+}
+.myseat__thanks { padding: 12px 14px; border-radius: var(--radius-btn); background: rgba(0, 0, 0, 0.18); font-size: 14px; font-weight: 600; }
+
+/* ---------- 구역별 빈자리 ---------- */
+.zones { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.zone {
+  display: grid; justify-items: center; gap: 4px;
+  padding: 10px 4px 12px; border-radius: 14px;
+  background: var(--surface-soft); text-align: center;
+}
+.zone__name { font-size: 12px; font-weight: 600; color: var(--text-sub); }
+.zone__count { font-size: 22px; font-weight: 800; line-height: 1.15; font-variant-numeric: tabular-nums; }
+.zone__count small { margin-left: 1px; font-size: 12px; font-weight: 600; color: var(--text-sub); }
+
+/* ---------- 나의 취향저격 명당 TOP 3 ---------- */
+.recs { margin-top: 10px; }
+.recs li + li { border-top: 1px dashed var(--line); }
+.rec {
+  display: grid; grid-template-columns: 30px minmax(0, 1fr) auto; align-items: center; gap: 12px;
+  margin: 0 -8px; padding: 12px 8px; border-radius: 14px;
+}
+.rec:hover { background: var(--surface-soft); }
+.rec__rank {
+  display: grid; place-items: center;
+  width: 30px; height: 30px; border-radius: 50%;
+  background: var(--brand-tint); color: var(--brand-ink); font-size: 14px; font-weight: 800;
+}
+.rec--first .rec__rank { background: var(--brand); color: #fff; }
+.rec__body { display: grid; gap: 2px; min-width: 0; }
+.rec__code { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: 16px; font-weight: 800; letter-spacing: -0.01em; }
+.rec__why { font-size: 13px; color: var(--text-sub); }
+.rec__score { font-size: 21px; font-weight: 800; color: var(--brand); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.rec__score small { margin-left: 1px; font-size: 13px; }
+.recs__note { display: flex; align-items: flex-start; gap: 6px; margin-top: 10px; font-size: 12px; color: var(--text-sub); }
+.recs__note .icon { width: 15px; height: 15px; margin-top: 2px; color: var(--ok); }

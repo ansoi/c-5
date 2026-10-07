@@ -1,0 +1,192 @@
+/* 공통 부품 2 — 페이지 머리말, 뒤로 가기, 버튼 추가형, 세그먼트, 확인 창, 단계 그림, 스위치, 선택 칩, 선택지, 별점, 안내 상자, 리뷰 카드 */
+
+/* ---------- 페이지 머리말 ---------- */
+.page-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; padding: 10px 2px 14px; }
+.page-title { font-size: 23px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.3; }
+.page-sub { margin-top: 2px; font-size: 14px; color: var(--text-sub); }
+@media (min-width: 900px) {
+  .page-head { padding: 16px 0 20px; }
+  .page-title { font-size: 28px; }
+}
+
+.back {
+  display: inline-flex; align-items: center; gap: 2px;
+  min-height: 44px; margin: 2px 0 0 -8px; padding: 0 12px 0 6px; border-radius: 12px;
+  font-size: 15px; font-weight: 600; color: var(--text-sub);
+}
+.back:hover { color: var(--text); background: rgba(255, 255, 255, 0.6); }
+.back .icon { width: 22px; height: 22px; }
+
+/* 좁은 화면 가운데 정렬용 */
+.narrow { max-width: 720px; margin: 0 auto; }
+
+/* ---------- 버튼 추가형 ---------- */
+.btn--secondary { background: var(--card); color: var(--text); box-shadow: inset 0 0 0 1.5px var(--line-strong); }
+.btn--secondary:hover { background: var(--surface-soft); }
+.btn:disabled, .btn[aria-disabled="true"] {
+  background: var(--neutral-bg); color: var(--text-sub); box-shadow: none; cursor: not-allowed; transform: none;
+}
+.btn-chip {
+  display: inline-flex; align-items: center; gap: 6px; flex: none;
+  min-height: 40px; padding: 0 14px; border-radius: 12px;
+  background: var(--card); border: 1px solid var(--line);
+  font-size: 14px; font-weight: 700; white-space: nowrap;
+}
+.btn-chip .icon { width: 18px; height: 18px; }
+.btn-chip:hover { border-color: var(--line-strong); }
+.text-btn {
+  display: inline-flex; align-items: center; gap: 4px; min-height: 36px; padding: 0 4px;
+  border: 0; background: none; font-size: 14px; font-weight: 600; color: var(--brand); cursor: pointer;
+}
+.text-btn .icon { width: 16px; height: 16px; }
+
+/* ---------- 세그먼트 (보기 바꾸기) ---------- */
+.segmented { display: inline-flex; gap: 2px; padding: 3px; border-radius: 12px; background: var(--neutral-bg); }
+.segmented button {
+  min-height: 36px; padding: 0 14px; border: 0; border-radius: 9px;
+  background: transparent; font-size: 14px; font-weight: 600; color: var(--text-sub); cursor: pointer; white-space: nowrap;
+}
+.segmented button[aria-pressed="true"], .segmented button[aria-selected="true"] {
+  background: var(--card); color: var(--text); box-shadow: 0 1px 3px rgba(45, 45, 45, 0.1);
+}
+.segmented--block { display: flex; width: 100%; }
+.segmented--block button { flex: 1; }
+
+/* ---------- 확인 창 ---------- */
+.dialog-wrap {
+  position: fixed; inset: 0; z-index: 60;
+  display: grid; place-items: end center; padding: 16px;
+  background: rgba(35, 22, 14, 0.45);
+  animation: fade-in 0.15s ease-out;
+}
+@media (min-width: 600px) { .dialog-wrap { place-items: center; } }
+.dialog {
+  width: 100%; max-width: 420px; padding: 22px 20px 16px; border-radius: 22px;
+  background: var(--card); box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+  animation: rise-in 0.2s ease-out;
+}
+.dialog__title { font-size: 19px; font-weight: 800; letter-spacing: -0.01em; }
+.dialog__body { display: grid; gap: 6px; margin-top: 10px; font-size: 15px; color: var(--text-sub); }
+.dialog__actions { display: grid; grid-template-columns: 1fr 1.4fr; gap: 8px; margin-top: 22px; }
+.dialog__actions .btn { padding: 0 12px; white-space: nowrap; }
+body.is-dialog, body.is-locked { overflow: hidden; }
+@keyframes fade-in { from { opacity: 0; } }
+@keyframes rise-in { from { opacity: 0; transform: translateY(16px); } }
+@media (prefers-reduced-motion: reduce) { .dialog-wrap, .dialog { animation: none; } }
+
+/* ---------- 단계 그림 ---------- */
+.steps { display: flex; gap: 3px; width: 100%; }
+.steps__seg { flex: 1; height: 6px; border-radius: 3px; background: var(--neutral-bg); }
+.steps__seg.is-on { background: var(--brand); }
+
+/* ---------- 스위치 ---------- */
+.switch {
+  position: relative; flex: none; width: 52px; height: 32px; padding: 0;
+  border: 0; border-radius: 999px; background: #D8CEC6; cursor: pointer; transition: background-color 0.15s;
+}
+.switch::after {
+  content: ""; position: absolute; top: 3px; left: 3px; width: 26px; height: 26px; border-radius: 50%;
+  background: #fff; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2); transition: transform 0.15s;
+}
+.switch[aria-checked="true"] { background: var(--brand); }
+.switch[aria-checked="true"]::after { transform: translateX(20px); }
+
+/* ---------- 선택 칩 (조건, 카테고리) ---------- */
+.pick-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.pick-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  min-height: 40px; padding: 0 14px; border-radius: var(--radius-pill);
+  border: 1.5px solid var(--line-strong); background: var(--card);
+  font-size: 14px; font-weight: 600; color: var(--text); cursor: pointer;
+}
+.pick-chip:hover { border-color: var(--text-sub); }
+.pick-chip[aria-pressed="true"] { border-color: var(--brand); background: var(--brand-tint); color: var(--brand-ink); }
+.pick-chip__rank {
+  display: grid; place-items: center; width: 20px; height: 20px; margin-left: -6px; border-radius: 50%;
+  background: var(--brand); color: #fff; font-size: 11px; font-weight: 800;
+}
+.pick-chip__count { font-weight: 700; color: var(--text-sub); }
+.pick-chip[aria-pressed="true"] .pick-chip__count { color: inherit; }
+
+/* ---------- 선택지 (단계 답) ---------- */
+.options { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 6px; }
+.option {
+  min-height: 46px; padding: 0 4px; border-radius: 12px;
+  border: 1.5px solid var(--line-strong); background: var(--card);
+  font-size: 14px; font-weight: 600; color: var(--text); cursor: pointer; word-break: keep-all;
+}
+.option:hover { border-color: var(--text-sub); }
+.option[aria-pressed="true"] { border-color: var(--brand); background: var(--brand); color: #fff; }
+.option--warn[aria-pressed="true"] { border-color: var(--mid); background: var(--mid); color: #fff; }
+.option--bad[aria-pressed="true"] { border-color: var(--bad); background: var(--bad); color: #fff; }
+
+/* ---------- 별점 ---------- */
+.stars-input { display: flex; gap: 4px; }
+.star-btn {
+  display: grid; place-items: center; width: 48px; height: 48px; padding: 0;
+  border: 0; border-radius: 12px; background: none; color: #D6CBC3; cursor: pointer;
+}
+.star-btn .icon { width: 36px; height: 36px; stroke-width: 1.6; }
+.star-btn.is-on { color: var(--crown-line); }
+.star-btn.is-on .icon { fill: var(--crown); }
+.star-text { color: var(--crown-line); font-weight: 800; }
+
+/* ---------- 안내 상자 ---------- */
+.notice { display: flex; gap: 10px; padding: 12px 14px; border-radius: 14px; background: var(--surface-soft); font-size: 14px; color: var(--text); }
+.notice > .icon { width: 18px; height: 18px; margin-top: 2px; color: var(--text-sub); }
+.notice strong { display: block; }
+.notice span { color: var(--text-sub); }
+.notice--mid { background: var(--mid-bg); }
+.notice--mid > .icon, .notice--mid strong { color: var(--mid); }
+.notice--bad { background: var(--bad-bg); }
+.notice--bad > .icon, .notice--bad strong { color: var(--bad); }
+.notice--ok { background: var(--ok-bg); }
+.notice--ok > .icon, .notice--ok strong { color: var(--ok); }
+
+/* ---------- 태그 ---------- */
+.tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.tag {
+  display: inline-flex; align-items: center; height: 26px; padding: 0 10px; border-radius: var(--radius-pill);
+  background: var(--neutral-bg); color: var(--text); font-size: 12.5px; font-weight: 600; white-space: nowrap;
+}
+.tag--ok { background: var(--ok-bg); color: var(--ok); }
+.tag--mid { background: var(--mid-bg); color: var(--mid); }
+.tag--bad { background: var(--bad-bg); color: var(--bad); }
+.tag--brand { background: var(--brand-tint); color: var(--brand-ink); }
+
+/* ---------- 리뷰 카드 ---------- */
+.review { padding: 16px; border-radius: 16px; background: var(--card); border: 1px solid var(--line); }
+.review__meta { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-sub); }
+.review__dept { font-weight: 700; color: var(--text); }
+.review__report {
+  display: inline-flex; align-items: center; gap: 3px; margin-left: auto; min-height: 32px; padding: 0 4px;
+  border: 0; background: none; font-size: 13px; color: var(--text-sub); cursor: pointer;
+}
+.review__report .icon { width: 14px; height: 14px; }
+.review .tags { margin-top: 8px; }
+.review__text { margin-top: 8px; font-size: 15px; }
+.review-list { display: grid; gap: 10px; }
+
+/* ---------- 자리 정보 칩 ---------- */
+.facts { display: flex; flex-wrap: wrap; gap: 6px; }
+.fact {
+  display: inline-flex; align-items: center; gap: 5px; height: 32px; padding: 0 11px;
+  border-radius: 10px; background: var(--neutral-bg); font-size: 13px; font-weight: 600;
+}
+.fact .icon { width: 15px; height: 15px; color: var(--text-sub); }
+.fact__wc { font-size: 10px; font-weight: 800; color: var(--text-sub); }
+
+/* ---------- 순위 동그라미 ---------- */
+.rank {
+  display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%;
+  background: var(--brand-tint); color: var(--brand-ink); font-size: 13px; font-weight: 800;
+}
+.rank--first { background: var(--brand); color: #fff; }
+
+/* ---------- 섹션 제목 ---------- */
+.section-title { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin: 22px 2px 10px; }
+.section-title h2 { font-size: 17px; font-weight: 700; }
+.section-title span { font-size: 13px; color: var(--text-sub); }
+
+/* 추천 3석 이유 첫머리 — 자리마다 다른 점 */
+.why__lead { font-weight: 700; color: var(--text); }
