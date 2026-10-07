@@ -106,7 +106,14 @@
     let primary;
     if (entry.state === 'mine') {
       if (my.status === 'reserved') primary = '<button type="button" class="btn btn--primary" data-action="checkin">체크인하기</button>';
-      else if (my.status === 'checkedIn') primary = '<button type="button" class="btn btn--primary" data-action="checkout">이용 종료하기</button>';
+      else if (my.status === 'checkedIn') {
+        // 체크인 버튼이 있던 오른쪽 칸은 누를 수 없는 상태 표시, 종료는 왼쪽 테두리 버튼 (연속 터치 방지)
+        return `
+      <div class="seatinfo__actions">
+        <button type="button" class="btn btn--secondary" data-action="checkout">이용 종료하기</button>
+        <p class="seatinfo__using">${UI.icon('check')}<span>이용 중 · ${esc(my.checkInAt)}부터</span></p>
+      </div>`;
+      }
       else if (!my.reviewed) primary = `<a class="btn btn--primary" href="#/review/${id}">리뷰 남기기</a>`;
       else primary = '<button type="button" class="btn btn--primary" disabled>오늘 이용을 마쳤어요</button>';
     } else if (entry.state === 'used') {
@@ -146,7 +153,22 @@
       `<li class="fact">${UI.icon('phone')}통화부스 ${seat.dist.booth}m</li>`,
     ].join('');
 
+    // 사용 중·수리 중 자리는 추천에서 빠지므로 일치도 숫자 대신 상태를 보여 줘요
+    const blocked = entry.state === 'used' || entry.state === 'repair';
+    const scoreBox = blocked
+      ? `<div class="score-box score-box--blocked">
+            <span class="score-box__label">취향 일치도</span>
+            <strong class="score-box__value score-box__value--state">${state.label}</strong>
+            <span class="score-box__meta">${entry.state === 'repair' ? '수리가 끝나면 다시 계산해요' : '오늘은 추천에서 빠져요'}</span>
+          </div>`
+      : `<div class="score-box score-box--mine">
+            <span class="score-box__label">취향 일치도</span>
+            <strong class="score-box__value">${entry.score}<small>%</small></strong>
+            <span class="score-box__meta">내 조건으로 계산했어요</span>
+          </div>`;
+
     return `
+      <div class="sheet__scroll">
       <div class="seatinfo">
         <div class="seatinfo__head">
           <div class="seatinfo__title">
@@ -158,11 +180,7 @@
         <p class="seatinfo__sub">${esc(sub)}</p>
 
         <div class="seatinfo__scores">
-          <div class="score-box score-box--mine">
-            <span class="score-box__label">취향 일치도</span>
-            <strong class="score-box__value">${entry.score}<small>%</small></strong>
-            <span class="score-box__meta">내 조건으로 계산했어요</span>
-          </div>
+          ${scoreBox}
           <div class="score-box">
             <span class="score-box__label">동료 별점</span>
             <strong class="score-box__value"><span class="star-text" aria-hidden="true">★</span> ${entry.stars != null ? entry.stars.toFixed(1) : '–'}</strong>
@@ -183,9 +201,10 @@
           ${ticketHTML(entry, snap)}
         </section>
 
-        ${breakdownHTML(entry)}
-        ${actionsHTML(entry, snap)}
-      </div>`;
+        ${blocked ? '' : breakdownHTML(entry)}
+      </div>
+      </div>
+      ${actionsHTML(entry, snap)}`;
   }
 
   // 추천 3석 목록 (모바일 도면 아래, PC 빈 패널)
@@ -197,7 +216,7 @@
           <span class="rank${i === 0 ? ' rank--first' : ''}" aria-hidden="true">${i + 1}</span>
           <span class="pick__body">
             <span class="pick__code">${esc(D.seatLabel(t.seat.id))}${i === 0 ? UI.crown() : ''}</span>
-            <span class="pick__why">${t.reasons.map((r) => `<span class="nowrap">${esc(r)}</span>`).join(' · ')}</span>
+            <span class="pick__why">${t.pickReasons.map((r, j) => (j === 0 ? `<strong class="nowrap why__lead">${esc(r)}</strong>` : `<span class="nowrap">${esc(r)}</span>`)).join(' · ')}</span>
           </span>
           <span class="pick__score"><span class="sr-only">취향 일치도 </span>${t.score}%</span>
         </button>
@@ -207,6 +226,7 @@
   // PC에서 아무 자리도 고르지 않았을 때 오른쪽 패널
   function emptyHTML(snap) {
     return `
+      <div class="sheet__scroll">
       <div class="seatinfo seatinfo--empty">
         <div>
           <h2 class="seatinfo__code">자리를 눌러 보세요</h2>
@@ -216,6 +236,7 @@
           <h3 class="seatinfo__h">오늘의 추천 3석</h3>
           <ol class="picks">${picksHTML(snap)}</ol>
         </section>
+      </div>
       </div>`;
   }
 

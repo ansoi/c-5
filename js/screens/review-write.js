@@ -219,11 +219,17 @@
       const result = MD.actions.submitReview(seatId, answers);
       const broken = result.newTickets.find((t) => t.kind === 'broken');
       const auto = result.newTickets.find((t) => t.kind === 'auto');
+      const { before, after } = result;
+      const comparable = (e) => e.state === 'free' || e.state === 'mine'; // 추천에 들어가는 자리만 숫자를 비교해요
       let message;
-      if (broken) message = `리뷰를 등록했어요. ${D.ITEMS[broken.item]} 고장은 바로 접수했어요`;
-      else if (auto) message = `리뷰를 등록했어요. ${D.ITEMS[auto.item]} 불만이 모여 자동 접수했어요`;
-      else if (result.before.score !== result.after.score) message = `리뷰를 반영했어요 · ${D.seatLabel(seatId)} 취향 일치도 ${result.before.score}% → ${result.after.score}%`;
-      else message = '리뷰를 등록했어요. 다음 추천에 바로 반영했어요';
+      if (broken || after.state === 'repair') {
+        const item = broken ? D.ITEMS[broken.item] : '설비';
+        message = `리뷰를 등록했어요. ${item} 고장을 접수해서 ${D.seatLabel(seatId)} 자리는 수리 중으로 바뀌었어요`;
+      } else if (auto) {
+        message = `리뷰를 등록했어요. ${D.ITEMS[auto.item]} 불만이 모여 자동 접수했어요 · 취향 일치도 ${MD.score.PENALTY}점 감점`;
+      } else if (comparable(before) && comparable(after) && before.score !== after.score) {
+        message = `리뷰를 반영했어요 · ${D.seatLabel(seatId)} 취향 일치도 ${before.score}% → ${after.score}%`;
+      } else message = '리뷰를 등록했어요. 다음 추천에 바로 반영했어요';
       location.hash = '#/';
       UI.toast(message);
     }

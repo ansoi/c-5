@@ -41,8 +41,8 @@
     const heat = mapState.mode === 'heat';
     const cls = ['seat'];
     if (heat) {
-      cls.push(`heat-${heatBand(s.score)}`);
-      if (s.state === 'used' || s.state === 'repair') cls.push('is-dim');
+      if (s.state === 'used' || s.state === 'repair') cls.push(`seat--${s.state}`, 'is-blocked');
+      else cls.push(`heat-${heatBand(s.score)}`);
       if (s.state === 'mine') cls.push('is-mine');
     } else {
       cls.push(`seat--${s.state}`);
@@ -51,10 +51,14 @@
     }
     if (id === mapState.seat) cls.push('is-selected');
 
-    let inner = heat ? String(s.score) : id.slice(1);
-    if (s.state === 'repair' && !heat) inner = UI.icon('wrench');
+    // 사용 중·수리 중 자리는 일치도를 숫자 대신 상태로 보여 줘요 (추천에서 빠지는 자리라 숫자를 비교하면 헷갈려요)
+    const blocked = s.state === 'used' || s.state === 'repair';
+    let inner = id.slice(1);
+    if (heat) inner = blocked ? `<span class="seat__state">${STATE_LABEL[s.state]}</span>` : String(s.score);
+    else if (s.state === 'repair') inner = UI.icon('wrench');
     const badge = rank === 0 ? UI.crown('seat__crown') : rank > 0 ? `<span class="seat__rank" aria-hidden="true">${rank + 1}</span>` : '';
-    const label = `${D.seatLabel(id)}, ${STATE_LABEL[s.state]}${rank === 0 ? ', 나의 명당' : rank > 0 ? `, 추천 ${rank + 1}위` : ''}, 취향 일치도 ${s.score}%`;
+    const score = s.state === 'used' || s.state === 'repair' ? '' : `, 취향 일치도 ${s.score}%`;
+    const label = `${D.seatLabel(id)}, ${STATE_LABEL[s.state]}${rank === 0 ? ', 나의 명당' : rank > 0 ? `, 추천 ${rank + 1}위` : ''}${score}`;
     return `<button type="button" class="${cls.join(' ')}" data-seat="${id}" data-focus="seat-${id}" aria-label="${label}"${id === mapState.seat ? ' aria-current="true"' : ''}>${inner}${badge}</button>`;
   }
 
@@ -86,13 +90,16 @@
     if (mapState.mode === 'heat') {
       return `
         <div class="legend legend--heat">
+          <p class="legend__title">칸의 숫자 = 내 취향 일치도(%)</p>
           <ul class="legend__list">
-            <li><span class="sw heat-4"></span>85% 이상</li>
-            <li><span class="sw heat-3"></span>70~84%</li>
-            <li><span class="sw heat-2"></span>55~69%</li>
-            <li><span class="sw heat-1"></span>55% 미만</li>
+            <li><span class="sw heat-4">85</span>85% 이상</li>
+            <li><span class="sw heat-3">70</span>70~84%</li>
+            <li><span class="sw heat-2">55</span>55~69%</li>
+            <li><span class="sw heat-1">40</span>55% 미만</li>
+            <li><span class="sw sw--used"></span>사용 중</li>
+            <li><span class="sw sw--repair">${UI.icon('wrench')}</span>수리 중</li>
           </ul>
-          <p class="legend__note">칸의 숫자가 내 취향 일치도예요. 흐린 자리는 사용 중이거나 수리 중이에요. 리뷰가 들어오면 바로 다시 계산돼요.</p>
+          <p class="legend__note">사용 중·수리 중 자리는 추천에서 빠져서 숫자 대신 상태를 보여 줘요. 리뷰가 들어오면 바로 다시 계산돼요.</p>
         </div>`;
     }
     return `
@@ -132,7 +139,8 @@
     backdrop.hidden = !modal;
     document.body.classList.toggle('is-locked', modal);
     if (entry && moveFocus) {
-      sheet.scrollTop = 0;
+      const scroller = sheet.querySelector('.sheet__scroll');
+      if (scroller) scroller.scrollTop = 0;
       const title = sheet.querySelector('#sheet-title');
       if (title) title.focus({ preventScroll: true });
     }
@@ -173,8 +181,18 @@
         if (name === 'close') closeSeat();
         else if (name === 'book') await MD.actions.book(action.dataset.seat);
         else if (name === 'checkin') {
-          MD.actions.checkIn();
-          MD.app.refresh({ keepScroll: true });
+          if (!(await MD.actions.checkIn())) return;
+          // 화면 전체를 다시 그리면 시트가 다시 올라오는 동안 두 번째 터치가 뒤쪽 탭으로 새요.
+          // 시트를 연 채로 내용만 바꿔요.
+          const snap = MD.score.snapshot();
+          const scroller = el.querySelector('.sheet__scroll');
+          const top = scroller ? scroller.scrollTop : 0;
+          UI.keepFocus(el, () => { el.querySelector('[data-slot="plan"]').innerHTML = planHTML(snap); });
+          paintSheet(el, snap, false);
+          const next = el.querySelector('.sheet__scroll');
+          if (next) next.scrollTop = top;
+          const status = el.querySelector('.seatinfo__using');
+          if (status) { status.setAttribute('tabindex', '-1'); status.focus({ preventScroll: true }); }
         } else if (name === 'checkout') MD.actions.checkOut();
         return;
       }
@@ -211,8 +229,8 @@
             </div>
           </div>
           <section class="card plan-card" aria-label="${D.FLOOR.label} 좌석 배치도">
-            <div data-slot="plan">${planHTML(snap)}</div>
             <div data-slot="legend">${legendHTML()}</div>
+            <div data-slot="plan">${planHTML(snap)}</div>
           </section>
           <section class="picks-strip" aria-labelledby="picks-title">
             <h2 class="section-title" id="picks-title">오늘의 추천 3석</h2>

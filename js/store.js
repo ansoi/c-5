@@ -67,7 +67,7 @@
   MD.store = { get, set, remove };
 
   // 시연용 기본 예약. 실제 예약은 사내 예약 앱에서 하고, 명당은 결과만 받아 보여줘요.
-  const DEMO_RESERVATION = { seatId: 'B07', from: '09:00', to: '18:00' };
+  const DEMO_RESERVATION = { seatId: MD.data.DEMO_SEAT, from: '09:00', to: '18:00' };
 
   MD.state = {
     // 업무 모드 + 우선순위 1~3위 (기획서 5장 1·2단계)

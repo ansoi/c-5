@@ -92,7 +92,7 @@
           <span class="rank${i === 0 ? ' rank--first' : ''}" aria-hidden="true">${i + 1}</span>
           <span class="preview__body">
             <span class="preview__code">${esc(D.seatLabel(t.seat.id))}${i === 0 ? UI.crown() : ''}</span>
-            <span class="preview__why">${t.reasons.map((r) => `<span class="nowrap">${esc(r)}</span>`).join(' · ')}</span>
+            <span class="preview__why">${t.pickReasons.map((r, j) => (j === 0 ? `<strong class="nowrap why__lead">${esc(r)}</strong>` : `<span class="nowrap">${esc(r)}</span>`)).join(' · ')}</span>
           </span>
           <span class="preview__score"><span class="sr-only">취향 일치도 </span>${t.score}%</span>
         </li>`).join('')}</ol>`;

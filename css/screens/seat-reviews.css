@@ -6,8 +6,17 @@
 .sr .page-title .crown { width: 24px; height: 24px; }
 .sr__eyebrow { font-size: 13px; font-weight: 700; color: var(--brand-ink); }
 .sr__facts { margin-top: -4px; }
-.sr__action--sticky { position: sticky; bottom: calc(76px + env(safe-area-inset-bottom)); z-index: 5; }
-@media (min-width: 900px) { .sr__action--sticky { bottom: 20px; } }
+/* 모바일: 예약 버튼을 하단 탭 바로 위에 고정해서 첫 화면부터 보여요 */
+.sr__action--sticky {
+  position: fixed; left: 0; right: 0; bottom: calc(63px + env(safe-area-inset-bottom)); z-index: 19;
+  padding: 10px 16px; background: var(--brand-tint); box-shadow: 0 -1px 0 var(--line);
+}
+.sr.has-fixed-action { padding-bottom: 72px; }
+@media (min-width: 640px) { .sr__action--sticky { left: 50%; right: auto; width: 640px; margin-left: -320px; } }
+@media (min-width: 900px) {
+  .sr__action--sticky { position: sticky; left: auto; width: auto; margin: 0; bottom: 20px; padding: 0; background: none; box-shadow: none; }
+  .sr.has-fixed-action { padding-bottom: 0; }
+}
 
 .sr-card { display: grid; gap: 14px; }
 .sr-h { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; font-size: 16px; font-weight: 700; }

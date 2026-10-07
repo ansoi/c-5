@@ -25,6 +25,9 @@
   --heat-3: #F6A06B;
   --heat-2: #FBD3B7;
   --heat-1: #FDF0E8;
+  --heat-3-line: #E98A4E;    /* 연한 칸도 테두리로 구분돼요 */
+  --heat-2-line: #F2BB96;
+  --heat-1-line: #E3CDBE;
 
   /* 왕관 */
   --crown: #FFB600;

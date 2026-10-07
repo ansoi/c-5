@@ -79,7 +79,7 @@
       if (top) {
         out.push({
           id: `daily-${U.todayKey()}`, kind: 'seat', icon: 'crown', daysAgo: 0, time: '08:00', at: atOf(0, '08:00'), seatId: top.seat.id,
-          title: `오늘 나의 명당은 ${D.seatLabel(top.seat.id)} 자리예요`, desc: `${top.reasons.join(' · ')} · 취향 일치도 ${top.score}%`,
+          title: `오늘 나의 명당은 ${D.seatLabel(top.seat.id)} 자리예요`, desc: `${top.pickReasons.join(' · ')} · 취향 일치도 ${top.score}%`,
         });
       }
     }

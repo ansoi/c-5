@@ -266,12 +266,17 @@
   // 날짜를 시드로 정해서, 같은 날엔 누가 열어도 같아요.
   const OCCUPANCY = { A: 0.62, B: 0.55, C: 0.5, D: 0.58 };
   let occupancyCache = { key: null, set: null };
+  const DEMO_SEAT = 'B07'; // 처음 열면 예약돼 있는 시연용 내 자리 (store.js)
+
   function occupiedToday() {
     const key = U.todayKey();
     if (occupancyCache.key !== key) {
       const rand = U.rng('occupancy-' + key);
       const used = new Set();
       SEATS.forEach((s) => { if (rand() < OCCUPANCY[s.zone]) used.add(s.id); });
+      // 시연 첫 예약 자리는 다른 사람이 쓰는 자리로 뽑히지 않게 해요.
+      // (뽑히면 내가 다른 자리로 옮긴 뒤 그 자리가 계속 '사용 중'으로 남아요)
+      used.delete(DEMO_SEAT);
       occupancyCache = { key, set: used };
     }
     return occupancyCache.set;
@@ -291,5 +296,6 @@
     seatLabel: (id) => `${FLOOR.label} · ${id}`,
     reviews,
     occupiedToday,
+    DEMO_SEAT,
   };
 })();

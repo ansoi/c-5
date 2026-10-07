@@ -35,7 +35,10 @@
     if (my.status === 'checkedIn') {
       state = '이용 중';
       note = `${my.checkInAt}에 체크인했어요`;
-      actions = '<button class="btn btn--on-brand" type="button" data-action="checkout">이용 종료하기</button>';
+      // 체크인 버튼이 있던 왼쪽 칸은 누를 수 없는 상태 표시로 바꾸고, 종료는 오른쪽 테두리 버튼으로 (연속 터치 방지)
+      actions = `
+        <p class="myseat__using"><span>이용 중 · ${esc(my.checkInAt)}부터</span></p>
+        <button class="btn btn--on-brand-ghost" type="button" data-action="checkout">이용 종료하기</button>`;
     } else if (my.status === 'done') {
       state = '이용 완료';
       note = `${my.checkInAt} – ${my.checkOutAt} 이용`;
@@ -45,7 +48,10 @@
     } else {
       state = '체크인 전';
       const better = snap.top.filter((t) => t.seat.id !== seat.id && t.raw > s.raw).length;
-      note = `취향 일치도 ${s.score}%${better ? ` · 더 잘 맞는 자리 ${better}곳` : ''}`;
+      const win = MD.actions.checkInWindow(my);
+      if (s.state === 'repair') note = '수리 접수된 자리예요 · 자리를 바꿔 보세요';
+      else if (!win.inTime) note = '지금은 예약 시간이 아니에요';
+      else note = `취향 일치도 ${s.score}%${better ? ` · 더 잘 맞는 자리 ${better}곳` : ''}`;
       actions = `
         <button class="btn btn--on-brand" type="button" data-action="checkin">체크인하기</button>
         <a class="btn btn--on-brand-ghost" href="#/map">자리 바꾸기</a>`;
@@ -60,7 +66,7 @@
         <p class="myseat__code" id="myseat-code">${esc(D.seatLabel(seat.id))}</p>
         <p class="myseat__meta">${esc(meta)}</p>
         <p class="myseat__note">${esc(note)}</p>
-        <div class="myseat__actions${my.status === 'reserved' ? '' : ' myseat__actions--single'}">${actions}</div>
+        <div class="myseat__actions${my.status === 'reserved' || my.status === 'checkedIn' ? '' : ' myseat__actions--single'}">${actions}</div>
       </article>`;
   }
 
@@ -105,7 +111,7 @@
                 ${i === 0 ? `${UI.crown()}<span class="sr-only">나의 명당</span>` : ''}
                 ${flags}
               </span>
-              <span class="rec__why">${t.reasons.map((r) => `<span class="nowrap">${esc(r)}</span>`).join(' · ')}</span>
+              <span class="rec__why">${t.pickReasons.map((r, j) => (j === 0 ? `<strong class="nowrap why__lead">${esc(r)}</strong>` : `<span class="nowrap">${esc(r)}</span>`)).join(' · ')}</span>
             </span>
             <span class="rec__score"><span class="sr-only">취향 일치도 </span>${t.score}<small>%</small></span>
           </a>
@@ -168,14 +174,13 @@
         </div>
       </div>`;
 
-    view.addEventListener('click', (e) => {
+    view.addEventListener('click', async (e) => {
       const btn = e.target.closest('[data-action]');
       if (!btn) return;
       if (btn.dataset.action === 'checkin') {
-        MD.actions.checkIn();
-        MD.app.refresh({ keepScroll: true });
+        if (await MD.actions.checkIn()) MD.app.refresh({ keepScroll: true });
       } else if (btn.dataset.action === 'checkout') {
-        MD.actions.checkOut();
+        MD.actions.checkOut(); // 확인 창에서 '이용 종료하기'를 눌러야 끝나요
       }
     });
   }

@@ -51,6 +51,10 @@
 .myseat__actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 16px; }
 .myseat__actions--single { grid-template-columns: 1fr; }
 .myseat__actions .btn { min-height: 46px; padding: 0 12px; font-size: 15px; }
+.myseat__using {
+  display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 46px; padding: 0 10px;
+  border-radius: var(--radius-btn); background: rgba(0, 0, 0, 0.18); font-size: 14px; font-weight: 700; white-space: nowrap;
+}
 .myseat__thanks { padding: 12px 14px; border-radius: var(--radius-btn); background: rgba(0, 0, 0, 0.18); font-size: 14px; font-weight: 600; }
 
 /* ---------- 구역별 빈자리 ---------- */

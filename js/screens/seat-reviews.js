@@ -258,7 +258,7 @@
 
       UI.keepFocus(view, () => {
         view.innerHTML = `
-          <div class="narrow sr">
+          <div class="narrow sr${entry.state === 'free' ? ' has-fixed-action' : ''}">
             ${UI.back(`#/map?seat=${seatId}`, '뒤로')}
             <div class="page-head">
               <div>

@@ -187,12 +187,82 @@
     return labels[factor](st[factor].mean);
   }
 
-  function reasonsFor(seat, st, prefs, parts) {
-    const out = prefs.priorities.map((id) => reasonFor(COND_BY_ID[id], seat, st));
+  // { key: 항목, text: 문구 } 목록 — key는 추천 3석 비교 문구와 겹치지 않게 할 때 써요
+  function reasonItemsFor(seat, st, prefs, parts) {
+    const out = prefs.priorities.map((id) => ({ key: COND_BY_ID[id].factor, text: reasonFor(COND_BY_ID[id], seat, st) }));
     parts.filter((p) => p.base).sort((a, b) => b.score - a.score).forEach((p) => {
-      if (out.length < 3) out.push(baseReason(p.factor, st));
+      if (out.length < 3) out.push({ key: p.factor, text: baseReason(p.factor, st) });
     });
-    return Array.from(new Set(out)).slice(0, 3);
+    const seen = new Set();
+    return out.filter((r) => (seen.has(r.text) ? false : seen.add(r.text))).slice(0, 3);
+  }
+
+  /* ---------- 추천 3석: 자리마다 다른 점을 이유 첫머리에 (같은 문구 3줄 방지) ---------- */
+  const SIDE_REASON = { north: '북쪽 창가', west: '서쪽 창가', corner: '모서리 창가' };
+  const TYPE_ONLY = { center: '트인 중앙 자리', window: '창가 자리', wall: '벽면 자리', partition: '칸막이 자리' };
+  const BEST_TEXT = {
+    noise: () => '셋 중 가장 조용함',
+    temp: (c) => (c.target > 1 ? '셋 중 가장 따뜻함' : c.target < 1 ? '셋 중 가장 시원함' : '셋 중 온도 가장 적당'),
+    light: (c) => (c.target > 1 ? '셋 중 햇빛 가장 잘 듦' : '셋 중 눈부심 가장 적음'),
+    equip: () => '셋 중 설비 상태 가장 좋음',
+    openness: (c) => (c.dir === 'closed' ? '셋 중 가장 아늑함' : '셋 중 가장 트임'),
+    stars: () => '셋 중 별점 가장 높음',
+  };
+  const MIN_GAP = { score: 4, dist: 3 }; // 이만큼 이상 앞서야 '가장'이라고 말해요
+
+  // 이 자리가 나머지 둘보다 확실히 나은 조건 (우선순위 순)
+  function bestAmong(t, others, prefs) {
+    const out = [];
+    prefs.priorities.forEach((id) => {
+      const c = COND_BY_ID[id];
+      if (DIST_KEYS.includes(c.factor) || c.factor === 'pantry') {
+        const d = (x) => x.seat.dist[c.factor];
+        const far = c.dir === 'far';
+        const ahead = others.every((o) => (far ? d(t) - d(o) : d(o) - d(t)) >= MIN_GAP.dist);
+        if (ahead) {
+          const name = D.LANDMARKS[c.factor].short;
+          out.push({ key: c.factor, text: far ? `${name}에서 ${d(t)}m로 가장 멂` : `${name} ${d(t)}m로 가장 가까움` });
+        }
+        return;
+      }
+      if (!BEST_TEXT[c.factor]) return; // 듀얼 모니터·창가처럼 있다/없다로 끝나는 조건은 빼요
+      const sc = (x) => (x.parts.find((p) => p.key === id) || {}).score;
+      if (others.every((o) => sc(t) - sc(o) >= MIN_GAP.score)) out.push({ key: c.factor, text: BEST_TEXT[c.factor](c) });
+    });
+    if (others.every((o) => (t.stars || 0) - (o.stars || 0) >= 0.3)) out.push({ key: 'stars', text: `별점 ${t.stars.toFixed(1)}로 가장 높음` });
+    return out;
+  }
+
+  function placeFact(seat) {
+    if (seat.type === 'window') return { key: 'place', text: SIDE_REASON[seat.windowSide] || '창가 자리' };
+    return { key: 'place', text: TYPE_ONLY[seat.type] };
+  }
+
+  function nearestFact(seat) {
+    const keys = Object.keys(seat.dist).filter((k) => k !== 'entrance' && D.LANDMARKS[k]);
+    const k = keys.sort((a, b) => seat.dist[a] - seat.dist[b])[0];
+    return k ? { key: k, text: `${D.LANDMARKS[k].short} ${seat.dist[k]}m` } : null;
+  }
+
+  // top 각 자리에 pickReasons를 붙여요. 첫 문구는 다른 두 자리에 없는 내용이에요.
+  function addPickReasons(top, prefs) {
+    const used = new Set();
+    top.forEach((t) => {
+      const others = top.filter((o) => o !== t);
+      const othersText = new Set(others.flatMap((o) => o.reasonItems.map((r) => r.text)));
+      const place = placeFact(t.seat);
+      const candidates = bestAmong(t, others, prefs)
+        .concat(others.every((o) => placeFact(o.seat).text !== place.text) ? [place] : [])
+        .concat([nearestFact(t.seat), t.seat.outlets >= 3 ? { key: 'outlets', text: `콘센트 ${t.seat.outlets}구` } : null])
+        .concat(t.reasonItems)
+        .filter(Boolean);
+      const lead = candidates.find((c) => !used.has(c.text) && !othersText.has(c.text)) || candidates[0];
+      used.add(lead.text);
+      const sameKey = (r) => r.key === lead.key || (lead.key === 'place' && (r.key === 'openness' || r.key === 'window'));
+      const rest = t.reasonItems.filter((r) => !sameKey(r) && r.text !== lead.text);
+      t.pickLead = lead.text;
+      t.pickReasons = [lead.text].concat(rest.map((r) => r.text)).slice(0, 3);
+    });
   }
 
   /* ---------- 좌석 평가 ---------- */
@@ -212,7 +282,8 @@
 
     let state = 'free';
     if (open.some((t) => t.kind === 'broken')) state = 'repair';
-    else if (ctx.my && ctx.my.seatId === seat.id) state = 'mine';
+    // 이용을 마친 자리는 바로 빈자리로 돌려놔요 (빈자리 수·구역별 빈자리에 바로 반영)
+    else if (ctx.my && ctx.my.seatId === seat.id && ctx.my.status !== 'done') state = 'mine';
     else if (ctx.occupied.has(seat.id)) state = 'used';
     const penalty = state !== 'repair' && open.length ? PENALTY : 0;
 
@@ -220,6 +291,7 @@
     const parts = weightedParts(item, ctx.prefs);
     const totalWeight = parts.reduce((a, p) => a + p.weight, 0);
     const raw = parts.reduce((a, p) => a + p.weight * p.score, 0) / totalWeight - penalty;
+    const reasonItems = reasonItemsFor(seat, st, ctx.prefs, parts);
 
     return {
       seat,
@@ -234,7 +306,8 @@
       parts,
       raw,
       score: Math.round(U.clamp(raw, 0, 100)),
-      reasons: reasonsFor(seat, st, ctx.prefs, parts),
+      reasonItems,
+      reasons: reasonItems.map((r) => r.text),
     };
   }
 
@@ -268,6 +341,7 @@
       if (top.length < 3 && !zonesTaken.has(s.seat.zone)) { top.push(s); zonesTaken.add(s.seat.zone); }
     });
     eligible.forEach((s) => { if (top.length < 3 && !top.includes(s)) top.push(s); });
+    addPickReasons(top, prefs);
 
     const zones = D.ZONES.map((zone) => {
       const list = seats.filter((s) => s.seat.zone === zone);
